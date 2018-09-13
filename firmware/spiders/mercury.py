@@ -40,11 +40,12 @@ class MercurySpider(Spider):
             tmp.append(p)
 
         title = tmp[0].xpath("./p/text()").extract()[0]
-        url = urlparse.urljoin(self.download_path, tmp[3].xpath("./a/@href").extract()[0])
+        url = urlparse.urljoin(self.download_path,
+                               tmp[3].xpath("./a/@href").extract_first().encode("utf8"))
 
         def parse(title):
 
-            print title
+            print title.encode("utf8")  # workaround for windows terminal
             product = version = date = None
 
             tmp = title.split(' ')
@@ -65,9 +66,9 @@ class MercurySpider(Spider):
                     date = tmp2[1][:6]
 
             elif len(tmp) == 3:
-                tmp2 = tmp[1].split('_')
+                tmp2 = tmp[2].split('_')
                 version = tmp2[0]
-                date = tmp2[1]
+                date = tmp2[1][:6]
 
             if version:
                 if version[0] not in ['v', 'V']:
@@ -84,7 +85,6 @@ class MercurySpider(Spider):
                 product = product.split('v')[0]
             elif product.count('V'):
                 product = product.split('v')[0]
-
 
             return product, version, date
 
