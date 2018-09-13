@@ -9,7 +9,7 @@ import json
 class BuffaloSpider(Spider):
     name = "buffalo"
     allowed_domains = ["buffalotech.com", "cdn.cloudfiles.mosso.com"]
-    start_urls = ["http://www.buffalotech.com/products/category/wireless-networking"]
+    start_urls = ["https://www.buffalotech.com/products/category/wireless-networking"]
 
     def parse(self, response):
         for href in response.xpath("//article/div/a/@href").extract():
