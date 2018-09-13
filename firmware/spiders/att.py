@@ -10,7 +10,7 @@ import urlparse
 class ATTSpider(Spider):
     name = "att"
     allowed_domains = ["bellsouth.net"]
-    start_urls = ["http://cpems.bellsouth.net/firmware"]
+    start_urls = ["http://cpems.bellsouth.net/firmware/"]
 
     def parse(self, response):
         for href in response.xpath("//a/@href").extract():
