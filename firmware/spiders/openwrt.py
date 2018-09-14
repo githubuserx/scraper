@@ -10,7 +10,7 @@ import urlparse
 class OpenWRTSpider(Spider):
     name = "openwrt"
     allowed_domains = ["downloads.openwrt.org"]
-    start_urls = ["http://downloads.openwrt.org/"]
+    start_urls = ["https://downloads.openwrt.org/"]
 
     def parse(self, response):
         for link in response.xpath("//a"):
@@ -25,7 +25,7 @@ class OpenWRTSpider(Spider):
 
     def parse_url(self, response):
         for link in response.xpath("//a"):
-            text = link.xpath("text()").extract()[0]
+            text = link.xpath("//text()").extract()[0]
             href = link.xpath("@href").extract()[0]
 
             if ".." in href:
