@@ -20,7 +20,13 @@ class ZyXELSpider(Spider):
         for entry in script:
             yield Request(
                 url=urlparse.urljoin(
-                    response.url, "/us/en/support/SearchResultTab.shtml?c=us&l=en&t=dl&md=%s&mt=Firmware&mt=MIBFile" % script[entry][1]),
+                    response.url, "/us/en/support/SearchResultTab.shtml?c=us&l=en&t=dl&md=%s&mt=Firmware" % script[entry][1]),
+                headers={"Referer": response.url},
+                meta={"product": script[entry][1]},
+                callback=self.parse_product)
+            yield Request(
+                url=urlparse.urljoin(
+                    response.url, "/us/en/support/SearchResultTab.shtml?c=us&l=en&t=dl&md=%s&mt=MIBFile" % script[entry][1]),
                 headers={"Referer": response.url},
                 meta={"product": script[entry][1]},
                 callback=self.parse_product)
