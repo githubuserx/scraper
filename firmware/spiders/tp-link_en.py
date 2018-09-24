@@ -12,15 +12,15 @@ class TPLinkENSpider(Spider):
     vendor = "tp-link"
     allowed_domains = ["tp-link.com"]
 
-    start_urls = ["http://www.tp-link.com/en/download-center.html"]
-    base_path = "http://www.tp-link.com/en/"
+    start_urls = ["https://www.tp-link.com/en/download-center.html"]
+    base_path = "https://www.tp-link.com/en/"
 
     def parse(self, response):
         for cid in response.xpath(
                 "//select[@id='slcProductCat']//option/@value").extract():
             yield Request(
                 url=urlparse.urljoin(
-                    self.base_path, "/getMenuList.html?action=getsubcatlist&catid=%s&appPath=us" % cid),
+                    self.base_path, "getMenuList.html?action=getsubcatlist&catid=%s&appPath=en" % cid),
                 meta={"cid": cid},
                 headers={"Referer": response.url,
                          "X-Requested-With": "XMLHttpRequest"},
@@ -33,7 +33,7 @@ class TPLinkENSpider(Spider):
             for entry in json_response:
                 yield Request(
                     url=urlparse.urljoin(
-                        self.base_path, "/getMenuList.html?action=getsubcatlist&catid=%s&appPath=us" % entry["id"]),
+                        self.base_path, "getMenuList.html?action=getsubcatlist&catid=%s&appPath=en" % entry["id"]),
                     meta={"cid": entry["id"]},
                     headers={"Referer": response.url,
                              "X-Requested-With": "XMLHttpRequest"},
@@ -41,7 +41,7 @@ class TPLinkENSpider(Spider):
         else:
             yield Request(
                 url=urlparse.urljoin(
-                    self.base_path, "phppage/down-load-model-list.html?showEndLife=false&catid={}&appPath=us".format(response.meta["cid"])),
+                    self.base_path, "phppage/down-load-model-list.html?showEndLife=false&catid={}&appPath=en".format(response.meta["cid"])),
                 headers={"Referer": response.url,
                          "X-Requested-With": "XMLHttpRequest"},
                 callback=self.parse_products)
@@ -79,12 +79,15 @@ class TPLinkENSpider(Spider):
     def parse_product(self, response):
 
         #<a href="#Firmware"><span>Firmware</span></a>
-        if not response.xpath("//a[@href=\"#Firmware\"]").extract():
+        if response.xpath("//h1[contains(text(),'Sorry')]"):
             yield None
 
-        description = response.xpath("//div[@class=\"product-name\"]//strong/text()").extract()[0]
-        url = response.xpath("//*[@id=\"content_Firmware\"]/table/tbody/tr[1]/th/a/@href").extract()[0]
-        date = response.xpath("//*[@id=\"content_Firmware\"]/table/tbody/tr[2]/td[1]/span[2]/text()").extract()[0]
+        description = response.xpath("//div[@class=\"product-name\"]//strong/text()").extract_first()
+        url = response.xpath("//*[@id=\"content_Firmware\"]/table/tbody/tr[1]/th/a/@href").extract_first()
+        date = response.xpath("//*[@id=\"content_Firmware\"]/table/tbody/tr[2]/td[1]/span[2]/text()").extract_first()
+
+        if not (url and date):
+            return
 
         item = FirmwareLoader(
             item=FirmwareImage(), response=response, date_fmt=["%d/%m/%y"])
