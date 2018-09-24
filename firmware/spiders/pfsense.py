@@ -15,8 +15,8 @@ class PfSenseSpider(Spider):
 
     def parse(self, response):
         for link in response.xpath("//a"):
-            text = link.xpath(".//text()").extract()[0]
-            href = link.xpath(".//@href").extract()[0]
+            href = link.xpath("@href").extract_first()
+            text = href
 
             if ".." in href:
                 continue
@@ -53,9 +53,9 @@ class PfSenseSpider(Spider):
                 item = FirmwareLoader(
                     item=FirmwareImage(), response=response, date_fmt=["%d-%b-%Y"])
                 item.add_value("version", version)
-                item.add_value("url", href)
+                item.add_value("url", urlparse.urljoin(response.url, href))
                 item.add_value("date", item.find_date(
-                    link.xpath("following::text()").extract()))
+                    link.xpath("following::text()").extract_first()))
                 item.add_value("product", "-".join(basename))
                 item.add_value("vendor", self.name)
                 yield item.load_item()
